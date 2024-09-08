@@ -2,9 +2,9 @@
 #include <math.h>
 
 #define N_LIGHTS 3
-#define NORMAL_DELAY 300
-#define ACCELERATION_TIME 5000
-#define TIMETRAVEL_TIME 5000
+#define NORMAL_DELAY 200
+#define ACCELERATION_TIME 20000
+#define TIMETRAVEL_TIME 3000
 #define MIN_ACCELERATION 100
 #define SWITCH_DEBOUNCE 200
 
@@ -30,7 +30,7 @@ void setLight(int i);
 void setAllLights(bool on);
 
 void setup() {
-  Serial1.begin(115200);
+  Serial.begin(115200);
   for (int j = 0; j < N_LIGHTS; j++) {
     pinMode(pins[j], OUTPUT); 
   }
@@ -46,12 +46,11 @@ void loop() {
       currentPin++;
       nextLight = millis() + NORMAL_DELAY;
     }
-    Serial1.println(digitalRead(BUTTON_PIN));
     if (digitalRead(BUTTON_PIN) == LOW && (millis() - switchDebounce) > SWITCH_DEBOUNCE) {
       switchDebounce = millis();
       mode = accelerate;
       modeStarted = millis();
-      Serial1.println("accelerating");
+      Serial.println("accelerating");
     }
     break;
   case accelerate:
@@ -63,13 +62,13 @@ void loop() {
       if (delayMultiplier <= 0.26) {
         mode = timetravel;
         modeStarted = millis();
-        Serial1.println("88 miles per hour!");
+        Serial.println("88 miles per hour!");
       }
       nextLight = millis() + (unsigned long)(NORMAL_DELAY * delayMultiplier);
     }
     break;
   case timetravel:
-    setAllLights((millis() / 1000) % 2 == 0);
+    setAllLights((millis() / 100) % 2 == 0);
     if (millis() - modeStarted >= TIMETRAVEL_TIME) {
       mode = normal;
       setAllLights(false);
